@@ -175,6 +175,16 @@
       gap: 10px;
     }
 
+    /* ссылка поверх блока видоса */
+    .video-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      width: 100%;
+    }
+
     .video-thumb {
       width: 52px;
       height: 52px;
@@ -454,13 +464,21 @@
         </div>
         <div class="card-body">
           <div class="video-placeholder">
-            <div class="video-thumb"></div>
-            <div>
-              <div class="video-text-main">Тут будет видео “Как искать”</div>
-              <div class="video-text-sub">
-                Залей видос на YouTube / Telegram и вставь сюда превью или iframe.
+            <!-- ССЫЛКА НА YOUTUBE ВНУТРИ href -->
+            <a
+              class="video-link"
+              href="https://youtube.com/shorts/hJHZv82l1go?si=QVoTJMykf7x9bxVA"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="video-thumb"></div>
+              <div>
+                <div class="video-text-main">Открыть видео “Как искать”</div>
+                <div class="video-text-sub">
+                  Нажми, чтобы перейти на YouTube и посмотреть гайд.
+                </div>
               </div>
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -478,7 +496,7 @@
             </div>
             <div class="example-item">
               <div class="example-label">2 сообщение</div>
-                Просто я занимаюсь перепродажей подарков, и покупаю их за звезды ( не через маркет ), а просто подарками либо фрагмент, или же могу купить за рубли
+              Просто я занимаюсь перепродажей подарков, и покупаю их за звезды ( не через маркет ), а просто подарками либо фрагмент, или же могу купить за рубли
             </div>
           </div>
         </div>
@@ -589,7 +607,7 @@
             <div class="helper-item">
               <div class="example-label">основной хелпер</div>
               <p>
-                По всем вопросам, настройке ботов и хостинга можно писать:
+                По всем вопросам можно писать:
                 <br />
                 <a href="https://t.me/fgilgj" target="_blank">@fgilgj</a>
               </p>
@@ -597,8 +615,7 @@
             <div class="helper-item">
               <div class="example-label">как это работает</div>
               <p>
-                WebApp отправляет payload с юзером через <code>sendData</code>.
-                Дальше твой бот по уведомлениям принимает эти данные и шлёт заявки.
+                админ @NikLaStore
               </p>
             </div>
           </div>
