@@ -451,18 +451,6 @@
       color: var(--text);
     }
 
-    .config-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
-
-    @media (min-width: 420px) {
-      .config-grid {
-        grid-template-columns: 1.1fr 1.2fr;
-      }
-    }
-
     .helper-list {
       display: flex;
       flex-direction: column;
@@ -565,8 +553,8 @@
     </header>
 
     <div class="top-note">
-      <strong>Бот-токен-соо</strong> — токен бота, который получает заявки с юзами.
-      Основной бот открывает этот WebApp.
+      <strong>Бот-токен-соо</strong> — бот, который принимает уведомления с юзами
+      (настраивается на бэке, WebApp только шлёт payload).
     </div>
 
     <div class="pill-row">
@@ -606,68 +594,26 @@
           <div class="card-body">
             <div class="example-list">
               <div class="example-item">
-                <div class="example-label">пример 1 · холодный заход</div>
-                Привет 👋 Видел, ты интересуешься темой [ниша]. Могу рассказать, как
-                можно поднять на этом без вложений, нужно только немного времени и
-                аккуратности. Если интересно — отпишись, скину подробный гайд.
+                <div class="example-label">1 сообщение</div>
+                Привет,продаешь нфт? Извини если отвлекаю
               </div>
               <div class="example-item">
-                <div class="example-label">пример 2 · мягкий заход</div>
-                Привет! 🙌 Работаю по теме [ниша], собираю людей на спокойную схему:
-                без рисков, с делёжкой профита. Могу взять тебя как воркера, всё
-                объясню с нуля. Пиши, если хочешь попробовать — дам инструкции.
+                <div class="example-label">2 сообщение</div>
+                Просто я занимаюсь перепродажей подарков, и покупаю их за звезды ( не через маркет ), а просто подарками либо фрагмент, или же могу купить за рубли
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Вкладка 2: если спам блок -->
+      <!-- Вкладка 2: спам блок / отправка юза -->
       <section class="tab-pane" data-tab="spam">
         <div class="card">
           <div class="card-header">
             <div class="card-title">Если спам-блок</div>
-            <div class="card-tag">бот-токен-соо · хостинг</div>
+            <div class="card-tag">юз</div>
           </div>
           <div class="card-body">
-            <div>
-              <div class="mini-title">бот-токен-соо &amp; хостинг</div>
-              <div class="config-grid">
-                <div>
-                  <div class="field-label">Бот-токен-соо (бот для заявок)</div>
-                  <div class="field">
-                    <span class="field-prefix">🔑</span>
-                    <input
-                      id="botTokenInput"
-                      type="password"
-                      placeholder="123456:ABC-DEF..."
-                      autocomplete="off"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div class="field-label">Ссылка на хостинг</div>
-                  <div class="field">
-                    <span class="field-prefix">🌐</span>
-                    <input
-                      id="hostingInput"
-                      type="text"
-                      placeholder="https://example.com/webapp"
-                      autocomplete="off"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div class="alert">
-                Эти поля идут в payload (внутрь sendData). В бою токены лучше держать на сервере.
-              </div>
-            </div>
-
-            <p class="hint">
-              Если тебя кидает в спам-блок — просто возьми юзер человека и отправь
-              его через форму ниже. Дальше связку продолжит основной / чистый акк или бот.
-            </p>
-
             <div class="form">
               <div>
                 <div class="field-label">Юзер, которого нужно передать:</div>
@@ -679,9 +625,6 @@
                     placeholder="username без @ (например, example)"
                     autocomplete="off"
                   />
-                </div>
-                <div class="alert alert-danger">
-                  Не пиши тут чувствительные данные, только @юзер или ссылку.
                 </div>
               </div>
 
@@ -714,12 +657,12 @@
                 <div class="percent-note">в сторону воркера</div>
               </div>
               <div class="percent-card">
-                <div class="percent-label">если меня как гаранта</div>
+                <div class="percent-label">при спам-блоке (если кидать юзы)</div>
                 <div class="percent-value">
-                  <span>50%</span> / <span class="percent-worker">50%</span>
+                  <span>50/50</span>
                 </div>
                 <div class="percent-note">
-                  50/50 · так же при спам-блоке
+                  50/50 · при спам-блоке (если кидать юзы)
                 </div>
               </div>
             </div>
@@ -775,8 +718,8 @@
               <div class="helper-item">
                 <div class="example-label">как это работает</div>
                 <p>
-                  WebApp отправляет payload с юзером, бот-токен-соо и ссылкой на хостинг.
-                  Дальше твой бек/скрипт уже дергает второго бота и шлёт ему уведомления.
+                  WebApp отправляет payload с юзером через <code>sendData</code>.
+                  Дальше твой бот по уведомлениям принимает эти данные и шлёт заявки.
                 </p>
               </div>
             </div>
@@ -807,18 +750,6 @@
   </div>
 
   <script>
-    // ==============================
-    //  НАСТРОЙКИ БОТОВ (ВВЕРХУ)
-    // ==============================
-    // 👉 СЮДА ПОДСТАВЬ СВОИ ТОКЕНЫ ЛОКАЛЬНО, НО В ПРОДАКШЕНЕ ЛУЧШЕ ХРАНИТЬ ИХ НА СЕРВЕРЕ
-    const MAIN_BOT_TOKEN = "MAIN_BOT_TOKEN_HERE";        // твой основной бот (открывает WebApp)
-    const NOTIFY_BOT_TOKEN = "NOTIFY_BOT_TOKEN_HERE";    // бот, куда приходят заявки
-
-    // В ТВОЁМ СЛУЧАЕ:
-    // MAIN_BOT_TOKEN  ← 8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY
-    // NOTIFY_BOT_TOKEN← 8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA
-    // ❗ Не выкладывай эти токены в общий доступ / открытый репозиторий.
-
     // Переключение вкладок
     const tabButtons = document.querySelectorAll(".tab-btn");
     const tabPanes = document.querySelectorAll(".tab-pane");
@@ -836,45 +767,7 @@
       });
     });
 
-    // Настройки: токен бота и хостинг
-    const botTokenInput = document.getElementById("botTokenInput");
-    const hostingInput = document.getElementById("hostingInput");
-
-    function loadConfig() {
-      try {
-        const raw = localStorage.getItem("worker_config");
-        if (raw) {
-          const cfg = JSON.parse(raw);
-          if (cfg.botToken) botTokenInput.value = cfg.botToken;
-          if (cfg.hostingUrl) hostingInput.value = cfg.hostingUrl;
-        } else {
-          // если ещё ничего не сохранено — подставим токен заявочного бота из константы
-          if (NOTIFY_BOT_TOKEN !== "NOTIFY_BOT_TOKEN_HERE") {
-            botTokenInput.value = NOTIFY_BOT_TOKEN;
-          }
-        }
-      } catch (e) {
-        console.warn("Config load error", e);
-      }
-    }
-
-    function saveConfig() {
-      const cfg = {
-        botToken: (botTokenInput.value || "").trim(),
-        hostingUrl: (hostingInput.value || "").trim(),
-      };
-      try {
-        localStorage.setItem("worker_config", JSON.stringify(cfg));
-      } catch (e) {
-        console.warn("Config save error", e);
-      }
-    }
-
-    botTokenInput.addEventListener("input", saveConfig);
-    hostingInput.addEventListener("input", saveConfig);
-    loadConfig();
-
-    // Логика "отправить юзера"
+    // Отправка юзера
     const userInput = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
     const statusEl = document.getElementById("status");
@@ -885,26 +778,21 @@
 
       if (!value) {
         statusEl.textContent =
-          "Сначала введи юзер, чтобы я понял, кого тебе нужно передать.";
+          "Сначала введи юзера, чтобы я понял, кого тебе нужно передать.";
         return;
       }
 
       const payload = {
         type: "user_submit",
         user: value,
-        // эти поля ты заберёшь на бэке и уже там будешь дёргать ботов
-        main_bot_token: MAIN_BOT_TOKEN !== "8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY" ? MAIN_BOT_TOKEN : null,
-        notify_bot_token:
-          (botTokenInput.value || "").trim() ||
-          (NOTIFY_BOT_TOKEN !== "8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA" ? NOTIFY_BOT_TOKEN : null),
-        hosting_url: (hostingInput.value || "niklateamworkbot-production.up.railway.app").trim() || null,
-        ts: Date.now(),
+        ts: Date.now()
       };
 
       if (window.Telegram && window.Telegram.WebApp) {
         try {
           window.Telegram.WebApp.sendData(JSON.stringify(payload));
-          statusEl.textContent = `Юзер "${value}" отправлен в бота.`;
+          statusEl.textContent = `Юзер "${value}" отправлен.`;
+          userInput.value = "";
         } catch (e) {
           console.error(e);
           statusEl.textContent =
