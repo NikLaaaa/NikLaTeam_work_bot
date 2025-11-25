@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mini TG App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #05060a;
+      --bg-card: #10131a;
+      --bg-soft: #151823;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #1f2933;
+      --danger: #f97373;
+      --radius-xl: 18px;
+      --radius-lg: 14px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        Roboto, sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 40%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: linear-gradient(145deg, #020617 0%, #020617 60%, #020617 100%);
+      border-radius: 24px;
+      padding: 14px 14px 70px;
+      position: relative;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .app-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 20%, #60a5fa, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.06em;
+      color: #eff6ff;
+      box-shadow: 0 0 30px rgba(37, 99, 235, 0.7);
+    }
+
+    .app-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-note {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    .top-note strong {
+      color: #e5e7eb;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .pill-badge {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+    }
+
+    .content {
+      margin-top: 8px;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #111827, #020617 70%);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 14px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      border: 1px solid rgba(59, 130, 246, 0.08);
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+      color: var(--muted);
+    }
+
+    .card-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .video-placeholder {
+      border-radius: var(--radius-lg);
+      border: 1px dashed rgba(75, 85, 99, 0.9);
+      background: radial-gradient(circle at top, rgba(37, 99, 235, 0.09), transparent),
+        rgba(15, 23, 42, 0.95);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .video-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 10%, #60a5fa, #1e40af);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.75);
+    }
+
+    .video-thumb::after {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 10px solid white;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      transform: translateX(2px);
+    }
+
+    .video-text-main {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .video-text-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .example-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .example-item {
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .example-label {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .field {
+      position: relative;
+    }
+
+    .field input {
+      width: 100%;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 10px 12px 10px 30px;
+      background: rgba(15, 23, 42, 0.98);
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s;
+    }
+
+    .field input::placeholder {
+      color: #6b7280;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.55);
+      background: #020617;
+    }
+
+    .field-prefix {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .btn {
+      width: 100%;
+      border-radius: 999px;
+      border: 0;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      background: radial-gradient(circle at 30% 0, #60a5fa, #1d4ed8);
+      color: white;
+      box-shadow: 0 16px 35px rgba(37, 99, 235, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out,
+        filter 0.12s ease-out;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.55);
+      filter: brightness(0.97);
+    }
+
+    .btn-icon {
+      font-size: 16px;
+    }
+
+    .alert {
+      font-size: 11px;
+      color: #facc15;
+      margin-top: 3px;
+    }
+
+    .alert-danger {
+      color: #f97373;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.6fr;
+      gap: 8px;
+    }
+
+    .mini-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .percent-card {
+      border-radius: var(--radius-lg);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      padding: 9px 10px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .percent-card.main::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .percent-label {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .percent-value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .percent-worker {
+      color: #22c55e;
+    }
+
+    .percent-note {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(55, 65, 81, 0.8),
+        transparent
+      );
+      margin: 8px 0 6px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .legend span strong {
+      color: var(--text);
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 420px) {
+      .config-grid {
+        grid-template-columns: 1.1fr 1.2fr;
+      }
+    }
+
+    .helper-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .helper-item {
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      padding: 8px 10px;
+    }
+
+    .tabs {
+      position: absolute;
+      inset-inline: 10px;
+      bottom: 10px;
+      height: 46px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      gap: 3px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.85);
+    }
+
+    .tab-btn {
+      flex: 1;
+      border-radius: 999px;
+      border: 0;
+      background: transparent;
+      color: #6b7280;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 7px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.16s ease-out;
+      white-space: nowrap;
+    }
+
+    .tab-btn span {
+      max-width: 80px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .tab-btn-icon {
+      font-size: 14px;
+    }
+
+    .tab-btn.active {
+      color: #e5e7eb;
+      background: radial-gradient(circle at top, rgba(59, 130, 246, 0.28), #020617);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7);
+    }
+
+    .tab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    @media (max-width: 380px) {
+      .app {
+        padding-inline: 10px;
+      }
+
+      .card {
+        padding: 11px;
+      }
+
+      .tabs {
+        inset-inline: 6px;
+      }
+
+      .tab-btn span {
+        max-width: 65px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-logo">TG</div>
+      <div class="app-title-wrap">
+        <div class="app-title">Панель воркера</div>
+        <div class="app-subtitle">поиск · спам-блок · проценты</div>
+      </div>
+    </header>
+
+    <div class="top-note">
+      <strong>Бот-токен-соо</strong> — токен бота, который получает заявки с юзами.
+      Основной бот открывает этот WebApp.
+    </div>
+
+    <div class="pill-row">
+      <div class="pill">
+        <span class="pill-badge"></span>
+        онлайн схема
+      </div>
+      <div class="pill">1 файл · WebApp</div>
+    </div>
+
+    <main class="content">
+      <!-- Вкладка 1: как искать -->
+      <section class="tab-pane active" data-tab="how">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Как искать (видос)</div>
+            <div class="card-tag">гайд</div>
+          </div>
+          <div class="card-body">
+            <div class="video-placeholder">
+              <div class="video-thumb"></div>
+              <div>
+                <div class="video-text-main">Тут будет видео “Как искать”</div>
+                <div class="video-text-sub">
+                  Залей видос на YouTube / Telegram и вставь сюда превью или iframe.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Примеры: как начать писать</div>
+            <div class="card-tag">2 текста</div>
+          </div>
+          <div class="card-body">
+            <div class="example-list">
+              <div class="example-item">
+                <div class="example-label">пример 1 · холодный заход</div>
+                Привет 👋 Видел, ты интересуешься темой [ниша]. Могу рассказать, как
+                можно поднять на этом без вложений, нужно только немного времени и
+                аккуратности. Если интересно — отпишись, скину подробный гайд.
+              </div>
+              <div class="example-item">
+                <div class="example-label">пример 2 · мягкий заход</div>
+                Привет! 🙌 Работаю по теме [ниша], собираю людей на спокойную схему:
+                без рисков, с делёжкой профита. Могу взять тебя как воркера, всё
+                объясню с нуля. Пиши, если хочешь попробовать — дам инструкции.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Вкладка 2: если спам блок -->
+      <section class="tab-pane" data-tab="spam">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Если спам-блок</div>
+            <div class="card-tag">бот-токен-соо · хостинг</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="mini-title">бот-токен-соо &amp; хостинг</div>
+              <div class="config-grid">
+                <div>
+                  <div class="field-label">Бот-токен-соо (бот для заявок)</div>
+                  <div class="field">
+                    <span class="field-prefix">🔑</span>
+                    <input
+                      id="botTokenInput"
+                      type="password"
+                      placeholder="123456:ABC-DEF..."
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div class="field-label">Ссылка на хостинг</div>
+                  <div class="field">
+                    <span class="field-prefix">🌐</span>
+                    <input
+                      id="hostingInput"
+                      type="text"
+                      placeholder="https://example.com/webapp"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="alert">
+                Эти поля идут в payload (внутрь sendData). В бою токены лучше держать на сервере.
+              </div>
+            </div>
+
+            <p class="hint">
+              Если тебя кидает в спам-блок — просто возьми юзер человека и отправь
+              его через форму ниже. Дальше связку продолжит основной / чистый акк или бот.
+            </p>
+
+            <div class="form">
+              <div>
+                <div class="field-label">Юзер, которого нужно передать:</div>
+                <div class="field">
+                  <span class="field-prefix">@</span>
+                  <input
+                    id="userInput"
+                    type="text"
+                    placeholder="username без @ (например, example)"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="alert alert-danger">
+                  Не пиши тут чувствительные данные, только @юзер или ссылку.
+                </div>
+              </div>
+
+              <button class="btn" id="sendBtn">
+                <span class="btn-icon">📩</span>
+                <span>Отправить юзера</span>
+              </button>
+
+              <div class="alert" id="status"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Вкладка 3: проценты -->
+      <section class="tab-pane" data-tab="percent">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Проценты и условия</div>
+            <div class="card-tag">делёж профита</div>
+          </div>
+          <div class="card-body">
+            <div class="mini-title">гарант-бот</div>
+            <div class="grid">
+              <div class="percent-card main">
+                <div class="percent-label">если гарант бот</div>
+                <div class="percent-value">
+                  <span class="percent-worker">70%</span> / <span>30%</span>
+                </div>
+                <div class="percent-note">в сторону воркера</div>
+              </div>
+              <div class="percent-card">
+                <div class="percent-label">если меня как гаранта</div>
+                <div class="percent-value">
+                  <span>50%</span> / <span class="percent-worker">50%</span>
+                </div>
+                <div class="percent-note">
+                  50/50 · так же при спам-блоке
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="mini-title">трейд бот</div>
+            <div class="grid">
+              <div class="percent-card main">
+                <div class="percent-label">если трейд ботом</div>
+                <div class="percent-value">
+                  <span class="percent-worker">70%</span> / <span>30%</span>
+                </div>
+                <div class="percent-note">70/30 в сторону воркера</div>
+              </div>
+              <div class="percent-card">
+                <div class="percent-label">если меня как гаранта</div>
+                <div class="percent-value">
+                  <span class="percent-worker">60%</span> / <span>40%</span>
+                </div>
+                <div class="percent-note">60/40 в сторону воркера</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="legend">
+              <span>✔ <strong>воркер</strong> — делает поиск/отработку</span>
+              <span>✔ <strong>гарант</strong> — даёт доверие и держит сделку</span>
+              <span>✔ <strong>бот</strong> — вариант, если всё идёт через гаранта-бота</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Вкладка 4: хелперы -->
+      <section class="tab-pane" data-tab="helpers">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Хелперы</div>
+            <div class="card-tag">контакты</div>
+          </div>
+          <div class="card-body">
+            <div class="helper-list">
+              <div class="helper-item">
+                <div class="example-label">основной хелпер</div>
+                <p>
+                  По всем вопросам, настройке ботов и хостинга можно писать:
+                  <br />
+                  <a href="https://t.me/fgilgj" target="_blank">@fgilgj</a>
+                </p>
+              </div>
+              <div class="helper-item">
+                <div class="example-label">как это работает</div>
+                <p>
+                  WebApp отправляет payload с юзером, бот-токен-соо и ссылкой на хостинг.
+                  Дальше твой бек/скрипт уже дергает второго бота и шлёт ему уведомления.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab-target="how">
+        <span class="tab-btn-icon">🎯</span>
+        <span>Как искать</span>
+      </button>
+      <button class="tab-btn" data-tab-target="spam">
+        <span class="tab-btn-icon">🚫</span>
+        <span>Спам-блок</span>
+      </button>
+      <button class="tab-btn" data-tab-target="percent">
+        <span class="tab-btn-icon">📊</span>
+        <span>Проценты</span>
+        <span class="tab-dot"></span>
+      </button>
+      <button class="tab-btn" data-tab-target="helpers">
+        <span class="tab-btn-icon">🧩</span>
+        <span>Хелперы</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    // ==============================
+    //  НАСТРОЙКИ БОТОВ (ВВЕРХУ)
+    // ==============================
+    // 👉 СЮДА ПОДСТАВЬ СВОИ ТОКЕНЫ ЛОКАЛЬНО, НО В ПРОДАКШЕНЕ ЛУЧШЕ ХРАНИТЬ ИХ НА СЕРВЕРЕ
+    const MAIN_BOT_TOKEN = "MAIN_BOT_TOKEN_HERE";        // твой основной бот (открывает WebApp)
+    const NOTIFY_BOT_TOKEN = "NOTIFY_BOT_TOKEN_HERE";    // бот, куда приходят заявки
+
+    // В ТВОЁМ СЛУЧАЕ:
+    // MAIN_BOT_TOKEN  ← 8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY
+    // NOTIFY_BOT_TOKEN← 8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA
+    // ❗ Не выкладывай эти токены в общий доступ / открытый репозиторий.
+
+    // Переключение вкладок
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabPanes = document.querySelectorAll(".tab-pane");
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-tab-target");
+
+        tabButtons.forEach((b) => b.classList.remove("active"));
+        tabPanes.forEach((pane) => pane.classList.remove("active"));
+
+        btn.classList.add("active");
+        const pane = document.querySelector(`.tab-pane[data-tab="${target}"]`);
+        if (pane) pane.classList.add("active");
+      });
+    });
+
+    // Настройки: токен бота и хостинг
+    const botTokenInput = document.getElementById("botTokenInput");
+    const hostingInput = document.getElementById("hostingInput");
+
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem("worker_config");
+        if (raw) {
+          const cfg = JSON.parse(raw);
+          if (cfg.botToken) botTokenInput.value = cfg.botToken;
+          if (cfg.hostingUrl) hostingInput.value = cfg.hostingUrl;
+        } else {
+          // если ещё ничего не сохранено — подставим токен заявочного бота из константы
+          if (NOTIFY_BOT_TOKEN !== "NOTIFY_BOT_TOKEN_HERE") {
+            botTokenInput.value = NOTIFY_BOT_TOKEN;
+          }
+        }
+      } catch (e) {
+        console.warn("Config load error", e);
+      }
+    }
+
+    function saveConfig() {
+      const cfg = {
+        botToken: (botTokenInput.value || "").trim(),
+        hostingUrl: (hostingInput.value || "").trim(),
+      };
+      try {
+        localStorage.setItem("worker_config", JSON.stringify(cfg));
+      } catch (e) {
+        console.warn("Config save error", e);
+      }
+    }
+
+    botTokenInput.addEventListener("input", saveConfig);
+    hostingInput.addEventListener("input", saveConfig);
+    loadConfig();
+
+    // Логика "отправить юзера"
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const statusEl = document.getElementById("status");
+
+    sendBtn.addEventListener("click", () => {
+      const value = (userInput.value || "").trim();
+      statusEl.textContent = "";
+
+      if (!value) {
+        statusEl.textContent =
+          "Сначала введи юзер, чтобы я понял, кого тебе нужно передать.";
+        return;
+      }
+
+      const payload = {
+        type: "user_submit",
+        user: value,
+        // эти поля ты заберёшь на бэке и уже там будешь дёргать ботов
+        main_bot_token: MAIN_BOT_TOKEN !== "8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY" ? MAIN_BOT_TOKEN : null,
+        notify_bot_token:
+          (botTokenInput.value || "").trim() ||
+          (NOTIFY_BOT_TOKEN !== "8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA" ? NOTIFY_BOT_TOKEN : null),
+        hosting_url: (hostingInput.value || "").trim() || null,
+        ts: Date.now(),
+      };
+
+      if (window.Telegram && window.Telegram.WebApp) {
+        try {
+          window.Telegram.WebApp.sendData(JSON.stringify(payload));
+          statusEl.textContent = `Юзер "${value}" отправлен в бота.`;
+        } catch (e) {
+          console.error(e);
+          statusEl.textContent =
+            "Ошибка при отправке через WebApp. Проверь подключение WebApp.";
+        }
+      } else {
+        statusEl.textContent =
+          `Юзер "${value}" сохранён, но Telegram.WebApp недоступен (открой через бота).`;
+      }
+    });
+  </script>
+</body>
+</html>
