@@ -1,26 +1,43 @@
-import TelegramBot from 'node-telegram-bot-api';
-import fetch from 'node-fetch';
+import express from "express";
+import TelegramBot from "node-telegram-bot-api";
+import fetch from "node-fetch";
 
-// =============== НАСТРОЙКИ ===============
+// ====== НАСТРОЙКИ ======
 
-// Основной бот (которому ты пишешь /start)
-const MAIN_BOT_TOKEN = '8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY';
+// основной бот (ему пишешь /start)
+const MAIN_BOT_TOKEN =
+  "8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY";
 
-// Бот, который должен ПОЛУЧАТЬ УВЕДОМЛЕНИЯ с юзами
-const NOTIFY_BOT_TOKEN = '8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA';
+// бот, который принимает уведомления с юзами
+const NOTIFY_BOT_TOKEN =
+  "8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA";
 
-// ID чата, куда слать заявки этим ботом по уведомлениям.
-// Сюда подставь свой user_id или id чата/канала, где ты ждёшь юзов.
-const NOTIFY_CHAT_ID = '1398396668';
+// chat_id, куда слать юзы ботом-уведомителем
+// Поставь сюда свой ID (узнать можно через @userinfobot, @getmyid_bot и т.п.)
+const NOTIFY_CHAT_ID = 1398396668; // !!! замени на свой ID
 
-// URL твоего WebApp (где лежит index.html)
-const WEBAPP_URL = 'https://niklateamworkbot-production.up.railway.app';
+// URL WebApp — домен Railway (замени на свой)
+const WEBAPP_URL = "https://niklateamworkbot-production.up.railway.app";
 
-// =============== ЗАПУСК БОТА ===============
+// ====== HTTP-СЕРВЕР ДЛЯ RAILWAY ======
+const app = express();
+const PORT = process.env.PORT || 8080;
 
+// раздаём ВСЁ из корня (index.html тоже лежит в корне)
+app.use(express.static("."));
+
+app.get("/health", (_, res) => {
+  res.send("OK");
+});
+
+app.listen(PORT, () => {
+  console.log("✅ HTTP сервер запущен на порту", PORT);
+});
+
+// ====== TELEGRAM-БОТ ОСНОВНОЙ ======
 const bot = new TelegramBot(MAIN_BOT_TOKEN, { polling: true });
 
-console.log('Бот запущен, жду /start...');
+console.log("🤖 Бот запущен, жду /start...");
 
 // /start -> кнопка с WebApp
 bot.onText(/\/start/, async (msg) => {
@@ -28,13 +45,13 @@ bot.onText(/\/start/, async (msg) => {
 
   await bot.sendMessage(
     chatId,
-    'Открываю панель воркера 👇',
+    "Открываю панель воркера 👇",
     {
       reply_markup: {
         keyboard: [
           [
             {
-              text: 'Открыть панель воркера',
+              text: "Открыть панель воркера",
               web_app: { url: WEBAPP_URL }
             }
           ]
@@ -45,34 +62,54 @@ bot.onText(/\/start/, async (msg) => {
   );
 });
 
-// Ловим данные из WebApp (sendData)
-bot.on('message', async (msg) => {
+// Приём данных из WebApp
+bot.on("message", async (msg) => {
   if (!msg.web_app_data) return;
 
   try {
     const data = JSON.parse(msg.web_app_data.data);
-    console.log('Пришёл payload из WebApp:', data);
+    console.log("Пришёл payload из WebApp:", data);
 
-    if (data.type === 'user_submit' && data.user) {
-      const text = `Новый юз из WebApp:\n@${data.user}`;
+    if (data.type === "user_submit" && data.user) {
+      const worker = msg.from || {};
+      let workerTag = "";
 
-      // Отправляем уведомление через бота по уведомлениям
-      const url = `https://api.telegram.org/bot${NOTIFY_BOT_TOKEN}/sendMessage`;
+      if (worker.username) {
+        workerTag = "@" + worker.username;
+      } else {
+        const name = [worker.first_name, worker.last_name]
+          .filter(Boolean)
+          .join(" ");
+        workerTag = name || `id:${worker.id}`;
+      }
 
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: NOTIFY_CHAT_ID,
-          text
-        })
-      });
+      const targetUser = data.user.startsWith("@")
+        ? data.user
+        : "@" + data.user;
 
-      // Ответ тому, кто отправил юза
-      await bot.sendMessage(msg.chat.id, 'Юз отправлен по уведомлениям ✅');
+      const text =
+        `📩 Новый юз из WebApp:\n` +
+        `• Юз: ${targetUser}\n` +
+        `• Отправил: ${workerTag}`;
+
+      // шлём уведомление через второго бота
+      await fetch(
+        `https://api.telegram.org/bot${NOTIFY_BOT_TOKEN}/sendMessage`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: NOTIFY_CHAT_ID,
+            text
+          })
+        }
+      );
+
+      // отвечаем воркеру, что всё ок
+      await bot.sendMessage(msg.chat.id, "✅ Юз отправлен по уведомлениям");
     }
   } catch (e) {
-    console.error('Ошибка обработки web_app_data:', e);
-    await bot.sendMessage(msg.chat.id, 'Ошибка обработки данных из WebApp.');
+    console.error("Ошибка обработки web_app_data:", e);
+    await bot.sendMessage(msg.chat.id, "❌ Ошибка обработки данных из WebApp.");
   }
 });
