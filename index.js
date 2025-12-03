@@ -6,15 +6,15 @@ import fetch from "node-fetch";
 
 // основной бот (ему пишешь /start)
 const MAIN_BOT_TOKEN =
-  "8521336123:AAEHEqcB9tlF2_BoBakTESh9kLaEVotm2uY";
+  "8399797924:AAHgUPN-21xGGaXBM6Z_TtStAGNkD2CDCMA";
 
 // бот, который принимает уведомления с юзами
 const NOTIFY_BOT_TOKEN =
-  "8432492509:AAHEfvG4GOJ3J1piOF9DQxe3CtVshXMLrQA";
+  "7850373738:AAGJqfdUcrq8XwbvbYnWot1HNevFb8bhc3E";
 
 // chat_id, куда слать юзы ботом-уведомителем
 // Поставь сюда свой ID (узнать можно через @userinfobot, @getmyid_bot и т.п.)
-const NOTIFY_CHAT_ID = 1398396668; // !!! замени на свой ID
+const NOTIFY_CHAT_ID = 6427969683; // !!! замени на свой ID
 
 // URL WebApp — домен Railway (замени на свой)
 const WEBAPP_URL = "https://niklateamworkbot-production.up.railway.app";
